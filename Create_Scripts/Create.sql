@@ -1,35 +1,4 @@
--- Table: public.Order_table
-
--- DROP TABLE IF EXISTS public."Order_table";
-
-CREATE TABLE IF NOT EXISTS public."Order_table"
-(
-    ord_id character varying COLLATE pg_catalog."default",
-    prod_id character varying COLLATE pg_catalog."default",
-    ship_id character varying COLLATE pg_catalog."default",
-    customer_id character varying COLLATE pg_catalog."default",
-    sales real,
-    discount real,
-    order_quantity integer NOT NULL,
-    profit real NOT NULL,
-    shipping_cost real NOT NULL,
-    product_base_margin real,
-    CONSTRAINT "Order_table_ord_id_fkey" FOREIGN KEY (ord_id)
-        REFERENCES public.order_details (ord_id) MATCH SIMPLE
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public."Order_table"
-    OWNER to postgres;
-
-
--- Table: public.customers
-
--- DROP TABLE IF EXISTS public.customers;
-
+-- Customers Table
 CREATE TABLE IF NOT EXISTS public.customers
 (
     customer_name character varying COLLATE pg_catalog."default" NOT NULL,
@@ -38,17 +7,32 @@ CREATE TABLE IF NOT EXISTS public.customers
     region character varying COLLATE pg_catalog."default" NOT NULL,
     customer_segment character varying COLLATE pg_catalog."default",
     CONSTRAINT customers_pkey PRIMARY KEY (customer_id)
-)
+);
 
-TABLESPACE pg_default;
+-- Customer Order Details
+CREATE TABLE IF NOT EXISTS public.customer_orders
+(
+    ord_id character varying COLLATE pg_catalog."default" NOT NULL,
+    cust_id character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT customer_orders_pkey PRIMARY KEY (ord_id),
+    CONSTRAINT fkey_cust_id FOREIGN KEY (cust_id)
+        REFERENCES public.customers (customer_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+);
 
-ALTER TABLE IF EXISTS public.customers
-    OWNER to postgres;
+-- Product Table 
+CREATE TABLE IF NOT EXISTS public.product
+(
+    product_category character varying COLLATE pg_catalog."default" NOT NULL,
+    product_base_margin real,
+    prod_id character varying COLLATE pg_catalog."default" NOT NULL,
+    product_sub_category character varying COLLATE pg_catalog."default",
+    CONSTRAINT product_pkey PRIMARY KEY (prod_id)
+);
 
--- Table: public.order_details
-
--- DROP TABLE IF EXISTS public.order_details;
-
+-- Order Details Table
 CREATE TABLE IF NOT EXISTS public.order_details
 (
     processing_id integer NOT NULL,
@@ -57,34 +41,9 @@ CREATE TABLE IF NOT EXISTS public.order_details
     ord_id character varying COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT order_details_pkey PRIMARY KEY (ord_id),
     CONSTRAINT order_details_processing_id_key UNIQUE (processing_id)
-)
+);
 
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.order_details
-    OWNER to postgres;
-
--- Table: public.product
-
--- DROP TABLE IF EXISTS public.product;
-
-CREATE TABLE IF NOT EXISTS public.product
-(
-    product_category character varying COLLATE pg_catalog."default" NOT NULL,
-    product_sub_category character varying COLLATE pg_catalog."default",
-    prod_id character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT product_pkey PRIMARY KEY (prod_id)
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.product
-    OWNER to postgres;
-
--- Table: public.shipping_details
-
--- DROP TABLE IF EXISTS public.shipping_details;
-
+-- Shipping Table
 CREATE TABLE IF NOT EXISTS public.shipping_details
 (
     processing_id integer NOT NULL,
@@ -96,9 +55,36 @@ CREATE TABLE IF NOT EXISTS public.shipping_details
         REFERENCES public.order_details (processing_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
-)
+);
 
-TABLESPACE pg_default;
+-- Order Table
+CREATE TABLE IF NOT EXISTS public."Order_table"
+(
+    ord_id character varying COLLATE pg_catalog."default" NOT NULL,
+    prod_id character varying COLLATE pg_catalog."default" NOT NULL,
+    ship_id character varying COLLATE pg_catalog."default" NOT NULL,
+    sales real,
+    discount real,
+    order_quantity real NOT NULL,
+    profit real NOT NULL,
+    shipping_cost real NOT NULL,
+    CONSTRAINT "Order_table_pkey" PRIMARY KEY (ord_id, prod_id, ship_id),
+    CONSTRAINT "Order_table_cist_ord_fkey" FOREIGN KEY (ord_id)
+        REFERENCES public.customer_orders (ord_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Order_table_ord_id_fkey" FOREIGN KEY (ord_id)
+        REFERENCES public.order_details (ord_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Order_table_prd_id_fkey" FOREIGN KEY (prod_id)
+        REFERENCES public.product (prod_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "Order_table_ship_id_fkey" FOREIGN KEY (ship_id)
+        REFERENCES public.shipping_details (ship_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
 
-ALTER TABLE IF EXISTS public.shipping_details
-    OWNER to postgres;
+
