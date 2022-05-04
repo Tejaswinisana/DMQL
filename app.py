@@ -19,6 +19,8 @@ def Index():
     cur.execute(s)
     list_products = cur.fetchall()
     return render_template('index.html',list_products=list_products)
+
+
 @app.route('/delete/<string:id>', methods = ['POST','GET'])
 def delete_product(id):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
