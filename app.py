@@ -20,7 +20,7 @@ def Index():
     list_products = cur.fetchall()
     return render_template('index.html',list_products=list_products)
 @app.route('/delete/<string:id>', methods = ['POST','GET'])
-def delete_student(id):
+def delete_product(id):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     print(cur.mogrify("DELETE FROM product WHERE prod_id = '{0}'".format(id)))
     cur.execute("DELETE FROM product WHERE prod_id = '{0}'".format(id))
@@ -30,13 +30,44 @@ def delete_student(id):
     return Index()
 
 @app.route('/add_product', methods=['POST'])
-def add_student():
+def add_product():
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if request.method == 'POST':
         prod_cat = request.form['prod_cat']
         prod_sub_cat = request.form['prod_sub_cat']
         prod_id = request.form['prod_id']
-        cur.execute("INSERT INTO product(product_category, prod_id, product_sub_category) VALUES (%s,%s,%s)", (prod_cat, prod_sub_cat, prod_id))
+        cur.execute("INSERT INTO product(product_category, product_sub_category, prod_id) VALUES (%s,%s,%s)", (prod_cat, prod_sub_cat, prod_id))
         conn.commit()
         flash('Product Added successfully')
+        return Index()
+@app.route('/edit/<id>', methods = ['POST', 'GET'])
+def get_product(id):
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    print(id)
+   
+    cur.execute("SELECT * FROM product WHERE prod_id = '{0}'".format(id))
+    data = cur.fetchall()
+    cur.close()
+    return render_template('edit.html', product = data[0])
+@app.route('/update/<id>', methods=['POST'])
+def update_product(id):
+    if request.method == 'POST':
+        prod_cat = request.form['prod_cat']
+        prod_sub_cat = request.form['prod_sub_cat']
+        prod_base_margin = request.form['prod_base_margin']
+    
+
+       
+         
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("""
+            UPDATE product
+            SET product_category = %s,
+                product_sub_category = %s,
+                product_base_margin = %s
+
+            WHERE prod_id = %s
+        """, (prod_cat, prod_sub_cat,prod_base_margin, id))
+    
+        conn.commit()
         return Index()
