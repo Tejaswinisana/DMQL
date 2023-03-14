@@ -35,6 +35,5 @@ DB_NAME = "Shoppingcart"
 DB_USER = "postgres"
 DB_PASS = "1234"
 
-Reference: https://tutorial101.blogspot.com/2021/04/python-flask-student-create-read-update.html
 
 
