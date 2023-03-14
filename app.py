@@ -19,6 +19,23 @@ def Index():
     cur.execute(s)
     list_products = cur.fetchall()
     return render_template('index.html',list_products=list_products)
+@app.route('/Customerview')
+def view_Customer():
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    s= "select * from customers"
+    cur.execute(s)
+    list_customers = cur.fetchall()
+    return render_template('customers.html',list_customers=list_customers)
+@app.route('/shipping')
+def view_Shippingfla():
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    s= "select * from shipping_details"
+    cur.execute(s)
+    list_customers = cur.fetchall()
+    return render_template('shipping.html',list_customers=list_customers)
+
+
+
 
 
 @app.route('/delete/<string:id>', methods = ['POST','GET'])
@@ -38,7 +55,8 @@ def add_product():
         prod_cat = request.form['prod_cat']
         prod_sub_cat = request.form['prod_sub_cat']
         prod_id = request.form['prod_id']
-        cur.execute("INSERT INTO product(product_category, product_sub_category, prod_id) VALUES (%s,%s,%s)", (prod_cat, prod_sub_cat, prod_id))
+        prod_base_margin = request.form['prod_base_margin']
+        cur.execute("INSERT INTO product(product_category, product_sub_category, prod_id,product_base_margin) VALUES (%s,%s,%s,%s)", (prod_cat, prod_sub_cat, prod_id,prod_base_margin))
         conn.commit()
         flash('Product Added successfully')
         return Index()

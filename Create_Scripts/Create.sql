@@ -1,3 +1,4 @@
+
 -- Customers Table
 CREATE TABLE IF NOT EXISTS public.customers
 (
@@ -39,8 +40,7 @@ CREATE TABLE IF NOT EXISTS public.order_details
     order_date date,
     order_priority character varying COLLATE pg_catalog."default",
     ord_id character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT order_details_pkey PRIMARY KEY (ord_id),
-    CONSTRAINT order_details_processing_id_key UNIQUE (processing_id)
+    CONSTRAINT order_details_pkey PRIMARY KEY (ord_id)
 );
 
 -- Shipping Table
@@ -51,11 +51,14 @@ CREATE TABLE IF NOT EXISTS public.shipping_details
     ship_date date NOT NULL,
     ship_id character varying COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT shipping_details_pkey PRIMARY KEY (ship_id),
-    CONSTRAINT shipping_details_processing_id_fkey FOREIGN KEY (processing_id)
-        REFERENCES public.order_details (processing_id) MATCH SIMPLE
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
+    CONSTRAINT uniq_pro_id UNIQUE (processing_id),
+    CONSTRAINT fkey_pro_id FOREIGN KEY (processing_id)
+        REFERENCES public.shipping_details (processing_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
 );
+
 
 -- Order Table
 CREATE TABLE IF NOT EXISTS public."Order_table"
